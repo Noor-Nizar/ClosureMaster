@@ -4,13 +4,17 @@ from torch.utils.data import Dataset
 import numpy as np
 
 class SegmentationDataset(Dataset):
-    def __init__(self, image_dir, processor):
+    def __init__(self, image_dir, processor, test_n_samples=None):
         self.image_dir = image_dir
+        self.test_n_samples = test_n_samples
         self.image_paths = [os.path.join(image_dir, img) for img in os.listdir(image_dir)]
         self.processor = processor
 
     def __len__(self):
-        return len(self.image_paths)
+        if self.test_n_samples:
+            return self.test_n_samples
+        else:
+            return len(self.image_paths)
 
     def __getitem__(self, idx):
         image_path = self.image_paths[idx]
