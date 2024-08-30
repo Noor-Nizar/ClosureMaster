@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 
 def ade_palette():
         """ADE20K palette that maps each class to RGB values. UPerNet"""
