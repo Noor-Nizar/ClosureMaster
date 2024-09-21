@@ -44,13 +44,43 @@ def ade_palette():
                 [102, 255, 0], [92, 0, 255]]
 
 
-
-def visualize_segmentation(image_np, seg):
+def convert_to_rgb(seg):
     # Convert segmentation map to color using the palette
     color_seg = np.zeros((seg.shape[0], seg.shape[1], 3), dtype=np.uint8)
     palette = np.array(ade_palette())
     for label, color in enumerate(palette):
         color_seg[seg == label, :] = color
+
+    return color_seg
+
+def convert_to_rgb_batched(seg):
+    """
+    Convert a batch of segmentation maps to RGB color images using the ADE20K palette.
+    
+    Args:
+    seg: torch.Tensor, batch of segmentation maps (B, H, W)
+    
+    Returns:
+    color_seg: torch.Tensor, batch of color images (B, H, W, 3)
+    """
+    # Ensure palette is a torch tensor on the same device as seg
+    palette = torch.tensor(ade_palette(), dtype=torch.uint8, device=seg.device)
+    
+    # Create a new tensor to hold the color images
+    color_seg = torch.zeros((*seg.shape, 3), dtype=torch.uint8, device=seg.device)
+    
+    # Use advanced indexing to assign colors
+    color_seg = palette[seg]
+    
+    # Permute the dimensions to make it channel-first
+    color_seg = color_seg.permute(0, 3, 1, 2)
+    
+    return color_seg
+
+
+def visualize_segmentation(image_np, seg):
+    # Convert segmentation map to color using the palette
+    color_seg = convert_to_rgb(seg)
 
     # Convert image_np tensor to numpy array
     if isinstance(image_np, torch.Tensor):
